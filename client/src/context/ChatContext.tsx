@@ -52,6 +52,7 @@ export function ChatProvider({ children }: { children: ReactNode }) {
     toggleMute: rtcToggleMute,
     toggleCamera: rtcToggleCamera,
     getLocalStream,
+    localStreamRef,
   } = useWebRTC(localVideoRef, remoteVideoRef, handleRemoteStream);
 
   const addSystemMessage = useCallback((text: string) => {
@@ -79,6 +80,8 @@ export function ChatProvider({ children }: { children: ReactNode }) {
       partnerIdRef.current = partnerId;
       setStatus('connected');
       setMessages([]);
+      // Wait for React to re-render the video elements before starting the call
+      await new Promise(resolve => setTimeout(resolve, 100));
       await startCall(partnerId, isInitiator);
     });
 
@@ -133,8 +136,13 @@ export function ChatProvider({ children }: { children: ReactNode }) {
 
   const start = useCallback(async () => {
     connectSocket();
-    // Pre-acquire camera/mic so local video shows while waiting
     await getLocalStream();
+    // Small delay so ChatPage mounts and localVideoRef is available
+    await new Promise(resolve => setTimeout(resolve, 150));
+    // Re-attach local stream to video element now that it's mounted
+    if (localVideoRef.current && localStreamRef.current) {
+      localVideoRef.current.srcObject = localStreamRef.current;
+    }
     getSocket().emit('findMatch');
   }, [getLocalStream]);
 

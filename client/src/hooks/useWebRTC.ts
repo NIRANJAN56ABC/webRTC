@@ -208,5 +208,6 @@ export function useWebRTC(
     toggleMute,
     toggleCamera,
     getLocalStream,
+    localStreamRef,
   };
 }
