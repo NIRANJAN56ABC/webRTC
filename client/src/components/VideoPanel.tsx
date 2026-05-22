@@ -11,6 +11,8 @@ export function VideoPanel() {
         ref={remoteVideoRef}
         autoPlay
         playsInline
+        muted={false}
+        onLoadedMetadata={(e) => (e.currentTarget as HTMLVideoElement).play().catch(() => {})}
         className="w-full h-full object-cover"
       />
 
@@ -58,6 +60,7 @@ export function VideoPanel() {
           autoPlay
           playsInline
           muted
+          onLoadedMetadata={(e) => (e.currentTarget as HTMLVideoElement).play().catch(() => {})}
           className="w-full h-full object-cover scale-x-[-1]"
         />
         {/* YOU label */}

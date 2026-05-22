@@ -1,12 +1,10 @@
-import { useRef, useCallback } from 'react';
+import { useRef, useCallback, useEffect } from 'react';
 import { getSocket } from '../services/socket.ts';
 
 const ICE_SERVERS: RTCConfiguration = {
   iceServers: [
-    // STUN — for direct connections
     { urls: 'stun:stun.l.google.com:19302' },
     { urls: 'stun:stun1.l.google.com:19302' },
-    // TURN — relay fallback for strict NAT/firewalls (required in production)
     {
       urls: 'turn:openrelay.metered.ca:80',
       username: 'openrelayproject',
@@ -33,14 +31,30 @@ export function useWebRTC(
 ) {
   const pcRef = useRef<RTCPeerConnection | null>(null);
   const localStreamRef = useRef<MediaStream | null>(null);
+  const remoteStreamRef = useRef<MediaStream | null>(null);
+
+  // Whenever remoteVideoRef becomes available, attach any pending stream
+  useEffect(() => {
+    if (remoteVideoRef.current && remoteStreamRef.current) {
+      remoteVideoRef.current.srcObject = remoteStreamRef.current;
+    }
+  });
+
+  // Whenever localVideoRef becomes available, attach local stream
+  useEffect(() => {
+    if (localVideoRef.current && localStreamRef.current) {
+      localVideoRef.current.srcObject = localStreamRef.current;
+    }
+  });
 
   const getLocalStream = useCallback(async (): Promise<MediaStream> => {
     if (localStreamRef.current) return localStreamRef.current;
     const stream = await navigator.mediaDevices.getUserMedia({
-      video: { width: { ideal: 1280 }, height: { ideal: 720 } },
+      video: { width: { ideal: 1280 }, height: { ideal: 720 }, facingMode: 'user' },
       audio: true,
     });
     localStreamRef.current = stream;
+    // Attach immediately if ref is ready
     if (localVideoRef.current) {
       localVideoRef.current.srcObject = stream;
     }
@@ -49,24 +63,41 @@ export function useWebRTC(
 
   const createPeerConnection = useCallback(
     (partnerId: string): RTCPeerConnection => {
+      // Close any existing connection first
+      if (pcRef.current) {
+        pcRef.current.close();
+        pcRef.current = null;
+      }
+
       const pc = new RTCPeerConnection(ICE_SERVERS);
       pcRef.current = pc;
       const socket = getSocket();
 
-      // Send ICE candidates to partner via server
       pc.onicecandidate = ({ candidate }) => {
         if (candidate) {
           socket.emit('iceCandidate', { candidate: candidate.toJSON(), to: partnerId });
         }
       };
 
-      // When remote track arrives, attach to remote video
+      pc.oniceconnectionstatechange = () => {
+        console.log('[ICE]', pc.iceConnectionState);
+      };
+
+      pc.onconnectionstatechange = () => {
+        console.log('[PC]', pc.connectionState);
+      };
+
       pc.ontrack = (event) => {
-        const [remoteStream] = event.streams;
+        console.log('[ontrack]', event.streams.length, event.track.kind);
+        const stream = event.streams[0] ?? new MediaStream([event.track]);
+        remoteStreamRef.current = stream;
+        // Attach directly — most reliable approach
         if (remoteVideoRef.current) {
-          remoteVideoRef.current.srcObject = remoteStream;
+          remoteVideoRef.current.srcObject = stream;
+          // Force play on mobile
+          remoteVideoRef.current.play().catch(() => {});
         }
-        onRemoteStream(remoteStream);
+        onRemoteStream(stream);
       };
 
       return pc;
@@ -80,13 +111,17 @@ export function useWebRTC(
       const stream = await getLocalStream();
       const pc = createPeerConnection(partnerId);
 
-      // Add local tracks to peer connection
-      stream.getTracks().forEach((track) => pc.addTrack(track, stream));
+      stream.getTracks().forEach((track) => {
+        pc.addTrack(track, stream);
+      });
 
       if (isInitiator) {
-        // Small delay to ensure non-initiator has set up their PC
-        await new Promise(resolve => setTimeout(resolve, 500));
-        const offer = await pc.createOffer();
+        // Give non-initiator time to set up
+        await new Promise(resolve => setTimeout(resolve, 600));
+        const offer = await pc.createOffer({
+          offerToReceiveAudio: true,
+          offerToReceiveVideo: true,
+        });
         await pc.setLocalDescription(offer);
         socket.emit('offer', { sdp: offer, to: partnerId });
       }
@@ -129,6 +164,7 @@ export function useWebRTC(
       pcRef.current.close();
       pcRef.current = null;
     }
+    remoteStreamRef.current = null;
     if (remoteVideoRef.current) {
       remoteVideoRef.current.srcObject = null;
     }
