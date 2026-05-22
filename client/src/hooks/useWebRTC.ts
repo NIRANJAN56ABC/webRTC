@@ -3,9 +3,27 @@ import { getSocket } from '../services/socket.ts';
 
 const ICE_SERVERS: RTCConfiguration = {
   iceServers: [
+    // STUN — for direct connections
     { urls: 'stun:stun.l.google.com:19302' },
     { urls: 'stun:stun1.l.google.com:19302' },
+    // TURN — relay fallback for strict NAT/firewalls (required in production)
+    {
+      urls: 'turn:openrelay.metered.ca:80',
+      username: 'openrelayproject',
+      credential: 'openrelayproject',
+    },
+    {
+      urls: 'turn:openrelay.metered.ca:443',
+      username: 'openrelayproject',
+      credential: 'openrelayproject',
+    },
+    {
+      urls: 'turn:openrelay.metered.ca:443?transport=tcp',
+      username: 'openrelayproject',
+      credential: 'openrelayproject',
+    },
   ],
+  iceCandidatePoolSize: 10,
 };
 
 export function useWebRTC(
@@ -66,6 +84,8 @@ export function useWebRTC(
       stream.getTracks().forEach((track) => pc.addTrack(track, stream));
 
       if (isInitiator) {
+        // Small delay to ensure non-initiator has set up their PC
+        await new Promise(resolve => setTimeout(resolve, 500));
         const offer = await pc.createOffer();
         await pc.setLocalDescription(offer);
         socket.emit('offer', { sdp: offer, to: partnerId });
