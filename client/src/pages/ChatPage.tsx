@@ -64,12 +64,18 @@ export function ChatPage() {
 
         {/* Video panel */}
         <div className="flex-1 min-w-0 flex flex-col justify-center min-h-0">
-          {/* 16:9 constrained box */}
+          {/* Mobile: fill available height. Desktop: constrain to 16:9 */}
           <div
-            className="w-full rounded-2xl overflow-hidden"
-            style={{ aspectRatio: '16/9', maxHeight: 'calc(100dvh - 120px)' }}
+            className="w-full h-full md:h-auto rounded-2xl overflow-hidden"
+            style={{ aspectRatio: undefined }}
           >
-            <VideoPanel />
+            {/* On md+ apply 16:9, on mobile just fill */}
+            <div className="hidden md:block w-full" style={{ aspectRatio: '16/9', maxHeight: 'calc(100dvh - 120px)' }}>
+              <VideoPanel />
+            </div>
+            <div className="md:hidden w-full h-full">
+              <VideoPanel />
+            </div>
           </div>
         </div>
 

@@ -6,7 +6,7 @@ export function VideoPanel() {
   return (
     <div className="relative w-full h-full bg-[#111] rounded-2xl overflow-hidden">
 
-      {/* Remote feed */}
+      {/* Remote feed — fills entire panel */}
       <video
         ref={remoteVideoRef}
         autoPlay
@@ -17,7 +17,6 @@ export function VideoPanel() {
       {/* Empty states */}
       {status !== 'connected' && (
         <div className="absolute inset-0 flex flex-col items-center justify-center gap-4">
-
           {status === 'waiting' && (
             <>
               <svg className="w-7 h-7 animate-spin text-white/40" viewBox="0 0 24 24" fill="none">
@@ -27,7 +26,6 @@ export function VideoPanel() {
               <p className="text-white/60 text-xs tracking-widest uppercase font-medium">searching</p>
             </>
           )}
-
           {status === 'skipped' && (
             <>
               <svg className="w-7 h-7 text-white/30" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
@@ -36,7 +34,6 @@ export function VideoPanel() {
               <p className="text-white/60 text-xs tracking-widest uppercase font-medium">disconnected</p>
             </>
           )}
-
           {status === 'idle' && (
             <svg className="w-7 h-7 text-white/20" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
               <path strokeLinecap="round" strokeLinejoin="round"
@@ -54,8 +51,8 @@ export function VideoPanel() {
         </div>
       )}
 
-      {/* Local PiP */}
-      <div className="absolute bottom-3 right-3 w-32 h-[72px] md:w-40 md:h-[90px] rounded-xl overflow-hidden border border-white/15 bg-black shadow-xl">
+      {/* Local PiP — small, bottom right, no black box */}
+      <div className="absolute bottom-3 right-3 w-20 h-28 md:w-32 md:h-24 rounded-xl overflow-hidden border border-white/20 shadow-xl">
         <video
           ref={localVideoRef}
           autoPlay
@@ -63,7 +60,8 @@ export function VideoPanel() {
           muted
           className="w-full h-full object-cover scale-x-[-1]"
         />
-        <div className="absolute bottom-0 inset-x-0 h-5 bg-gradient-to-t from-black/80 to-transparent flex items-end justify-center pb-0.5">
+        {/* YOU label */}
+        <div className="absolute bottom-0 inset-x-0 h-5 bg-gradient-to-t from-black/70 to-transparent flex items-end justify-center pb-0.5">
           <span className="text-[9px] text-white/60 tracking-widest uppercase font-medium">you</span>
         </div>
       </div>
