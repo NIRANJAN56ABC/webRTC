@@ -1,3 +1,4 @@
+import { useEffect } from 'react';
 import { useChat } from '../context/ChatContext.tsx';
 
 const features = [
@@ -9,7 +10,7 @@ const features = [
       </svg>
     ),
     title: 'Fully Anonymous',
-    desc: 'No account, no email, no trace. You are just a stranger.',
+    desc: 'No account, no email, no trace. Completely anonymous.',
   },
   {
     icon: (
@@ -19,7 +20,7 @@ const features = [
       </svg>
     ),
     title: 'Instant Match',
-    desc: 'Click start and you are connected to a random stranger in seconds.',
+    desc: 'Click start and you are connected to a random person in seconds.',
   },
   {
     icon: (
@@ -52,71 +53,77 @@ const steps = [
 export function LandingPage() {
   const { start } = useChat();
 
+  // Allow scrolling on landing page
+  useEffect(() => {
+    document.body.classList.add('landing');
+    return () => document.body.classList.remove('landing');
+  }, []);
+
   return (
     <div className="min-h-screen bg-black text-white overflow-x-hidden">
 
       {/* ── Nav ── */}
-      <nav className="flex items-center justify-between px-6 md:px-12 py-5 border-b border-white/6">
-        <span className="font-display font-bold text-lg tracking-tight">
-          stranger<span className="text-white/25">.</span>
+      <nav className="flex items-center justify-between px-5 md:px-12 py-4 border-b border-white/6 sticky top-0 bg-black/90 backdrop-blur-sm z-50">
+        <span className="font-display font-bold text-base md:text-lg tracking-tight">
+          meet<span className="text-white/25">.</span>
         </span>
         <button
           onClick={start}
-          className="text-sm font-medium text-white/60 hover:text-white transition-colors"
+          className="text-sm font-medium text-white/70 hover:text-white transition-colors py-2 px-1"
         >
           Launch app →
         </button>
       </nav>
 
       {/* ── Hero ── */}
-      <section className="flex flex-col items-center text-center px-6 pt-24 pb-20 md:pt-32 md:pb-28">
+      <section className="flex flex-col items-center text-center px-5 pt-16 pb-16 md:pt-28 md:pb-24">
 
         {/* Badge */}
-        <div className="inline-flex items-center gap-2 border border-white/10 rounded-full px-4 py-1.5 mb-8">
+        <div className="inline-flex items-center gap-2 border border-white/10 rounded-full px-3.5 py-1.5 mb-7">
           <span className="w-1.5 h-1.5 rounded-full bg-white animate-pulse" />
-          <span className="text-xs text-white/40 tracking-wide font-medium">Free · No sign-up required</span>
+          <span className="text-xs text-white/50 tracking-wide font-medium">Free · No sign-up required</span>
         </div>
 
         {/* Headline */}
-        <h1 className="font-display font-bold text-5xl md:text-7xl lg:text-8xl tracking-tight leading-[1.05] max-w-4xl mb-6">
-          Meet a stranger.
+        <h1 className="font-display font-bold text-4xl sm:text-6xl md:text-7xl lg:text-8xl tracking-tight leading-[1.05] max-w-4xl mb-5">
+          Meet someone interesting.
           <br />
-          <span className="text-white/25">Right now.</span>
+          <span className="text-white/40">Right now.</span>
         </h1>
 
         {/* Sub */}
-        <p className="text-white/40 text-base md:text-lg max-w-md leading-relaxed mb-10">
+        <p className="text-white/60 text-sm sm:text-base md:text-lg max-w-sm md:max-w-md leading-relaxed mb-8">
           Anonymous one-on-one video chat. No accounts, no history.
           Just you and whoever's on the other side.
         </p>
 
-        {/* CTA group */}
+        {/* CTA */}
         <div className="flex flex-col sm:flex-row items-center gap-3">
           <button
             onClick={start}
-            className="flex items-center gap-2.5 bg-white text-black font-semibold text-sm px-7 py-3.5 rounded-full hover:bg-white/90 active:scale-95 transition-all duration-150"
+            className="flex items-center gap-2.5 bg-white text-black font-semibold text-sm px-7 py-3.5 rounded-full hover:bg-white/90 active:scale-95 transition-all duration-150 min-w-[160px] justify-center"
           >
             <svg className="w-3.5 h-3.5" viewBox="0 0 16 16" fill="currentColor">
               <path d="M3 2.5a.5.5 0 01.765-.424l10 5.5a.5.5 0 010 .848l-10 5.5A.5.5 0 013 13.5v-11z" />
             </svg>
             Start finding
           </button>
-          <span className="text-xs text-white/20">No camera? Text-only works too.</span>
+          <span className="text-xs text-white/25">No camera? Text-only works too.</span>
         </div>
       </section>
 
       {/* ── How it works ── */}
-      <section className="px-6 md:px-12 py-16 border-t border-white/6">
-        <p className="text-xs text-white/25 tracking-widest uppercase mb-10 text-center">How it works</p>
-        <div className="flex flex-col md:flex-row items-center justify-center gap-0 max-w-2xl mx-auto">
+      <section className="px-5 md:px-12 py-12 md:py-16 border-t border-white/6">
+        <p className="text-xs text-white/50 tracking-widest uppercase mb-8 md:mb-10 text-center font-medium">How it works</p>
+        <div className="flex flex-col sm:flex-row items-center justify-center max-w-2xl mx-auto">
           {steps.map((step, i) => (
-            <div key={step.num} className="flex flex-col md:flex-row items-center gap-0 flex-1">
-              <div className="flex flex-col items-center text-center px-6 py-4">
-                <span className="font-display text-4xl font-bold text-white/8 mb-2">{step.num}</span>
-                <span className="text-sm text-white/60 font-medium">{step.text}</span>
+            <div key={step.num} className="flex flex-col sm:flex-row items-center flex-1 w-full sm:w-auto">
+              <div className="flex flex-col items-center text-center px-4 py-3 md:px-6 md:py-4">
+                <span className="font-display text-3xl md:text-4xl font-bold text-white/15 mb-1.5">{step.num}</span>
+                <span className="text-sm text-white/80 font-medium">{step.text}</span>
               </div>
               {i < steps.length - 1 && (
-                <div className="w-px h-8 md:h-px md:w-8 bg-white/8 shrink-0" />
+                <div className="w-px h-6 sm:h-px sm:w-8 bg-white/8 shrink-0" />
               )}
             </div>
           ))}
@@ -124,30 +131,30 @@ export function LandingPage() {
       </section>
 
       {/* ── Features ── */}
-      <section className="px-6 md:px-12 py-16 border-t border-white/6">
-        <p className="text-xs text-white/25 tracking-widest uppercase mb-10 text-center">Features</p>
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 max-w-5xl mx-auto">
+      <section className="px-5 md:px-12 py-12 md:py-16 border-t border-white/6">
+        <p className="text-xs text-white/50 tracking-widest uppercase mb-8 md:mb-10 text-center font-medium">Features</p>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4 max-w-5xl mx-auto">
           {features.map((f) => (
             <div
               key={f.title}
-              className="bg-white/3 border border-white/6 rounded-2xl p-5 hover:bg-white/5 hover:border-white/10 transition-all duration-200"
+              className="bg-white/3 border border-white/6 rounded-2xl p-4 md:p-5 hover:bg-white/5 hover:border-white/10 transition-all duration-200"
             >
-              <div className="w-9 h-9 rounded-xl bg-white/6 flex items-center justify-center text-white/50 mb-4">
+              <div className="w-9 h-9 rounded-xl bg-white/10 flex items-center justify-center text-white/70 mb-3 md:mb-4">
                 {f.icon}
               </div>
               <h3 className="font-display font-semibold text-sm text-white mb-1.5">{f.title}</h3>
-              <p className="text-xs text-white/35 leading-relaxed">{f.desc}</p>
+              <p className="text-xs text-white/55 leading-relaxed">{f.desc}</p>
             </div>
           ))}
         </div>
       </section>
 
       {/* ── Final CTA ── */}
-      <section className="px-6 md:px-12 py-24 border-t border-white/6 flex flex-col items-center text-center">
-        <h2 className="font-display font-bold text-3xl md:text-5xl tracking-tight mb-4">
-          Ready to meet someone?
+      <section className="px-5 md:px-12 py-16 md:py-24 border-t border-white/6 flex flex-col items-center text-center">
+        <h2 className="font-display font-bold text-2xl sm:text-3xl md:text-5xl tracking-tight mb-4">
+          Ready to meet someone interesting?
         </h2>
-        <p className="text-white/30 text-sm mb-8 max-w-xs">
+        <p className="text-white/50 text-sm mb-7 max-w-xs">
           One click. Completely anonymous. Skip anytime.
         </p>
         <button
@@ -162,12 +169,12 @@ export function LandingPage() {
       </section>
 
       {/* ── Footer ── */}
-      <footer className="px-6 md:px-12 py-6 border-t border-white/6 flex flex-col sm:flex-row items-center justify-between gap-3">
+      <footer className="px-5 md:px-12 py-5 border-t border-white/6 flex flex-col sm:flex-row items-center justify-between gap-2">
         <span className="font-display font-bold text-sm text-white/20 tracking-tight">
-          stranger<span className="text-white/10">.</span>
+          meet<span className="text-white/10">.</span>
         </span>
-        <p className="text-xs text-white/15">
-          Built with WebRTC · Be kind to strangers.
+        <p className="text-xs text-white/25">
+          Built with WebRTC · Be kind to each other.
         </p>
       </footer>
 
